@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include <windows.h>
 #include <accctrl.h>
 #include <aclapi.h>
 #include <cstdio>

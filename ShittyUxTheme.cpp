@@ -1,10 +1,14 @@
 #define _NO_CVCONST_H
-#include <Windows.h>
-#include <DbgHelp.h>
+#include <windows.h>
+#include <dbghelp.h>
 
 #include <cstdio>
 #include <unordered_set>
+#ifndef __MINGW32__
 #include <xutility>
+#else
+#include <ctime>
+#endif
 #include <vector>
 #include <string>
 #include <fstream>
@@ -90,7 +94,11 @@ static int do_the_patch(const wchar_t* image)
   }
 
   std::unordered_set<uint32_t> patch_rvas;
+#ifndef __MINGW32__
   auto success = SymEnumSymbolsExW(
+#else
+  auto success = SymEnumSymbolsW(
+#endif
     GetCurrentProcess(),
     (DWORD64)lib,
     nullptr,
@@ -107,8 +115,10 @@ static int do_the_patch(const wchar_t* image)
       }
       return TRUE;
     },
-    &patch_rvas,
-    SYMENUM_OPTIONS_DEFAULT
+    &patch_rvas
+#ifndef __MINGW32__
+    , SYMENUM_OPTIONS_DEFAULT
+#endif
   );
 
   if (patch_rvas.empty())
