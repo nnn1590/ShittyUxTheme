@@ -14,7 +14,7 @@ jobs:
       matrix:
         # Configuration type to build.
         BUILD_CONFIGURATION: ["Debug", "Release"]
-        BUILD_PLATFORM: ["x86", "x64", "ARM64"]
+        BUILD_PLATFORM: ["x86", "x64"]  # ARM64
 
     steps:
     - uses: actions/checkout@v2
