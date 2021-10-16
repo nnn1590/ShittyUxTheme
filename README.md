@@ -18,16 +18,16 @@ A file patching UxTheme patcher. If you don't intentionally seek this, I recomme
 
 1. Compile for your architecture
 2. Put the files `dbghelp.dll`, `symsrv.dll`, `symsrv.yes` and `api-ms-win-downlevel-kernel32-l2-1-0.dll` from Windows 10 SDK(e.g. `C:\Program Files (x86)\Windows Kits\10\Debuggers\x64`) next to the output binary
-After this, directory structure will be:
-```
-a_directory
-|-- api-ms-win-downlevel-kernel32-l2-1-0.dll
-|-- dbghelp.dll
-|-- ShittyUxTheme.exe
-|-- symsrv.dll
-`-- symsrv.yes
-```
-(or add `Windows 10 SDK\Debuggers\(arch)` to your PATH)
+   After this, directory structure will be:
+   ```
+   a_directory
+   |-- api-ms-win-downlevel-kernel32-l2-1-0.dll
+   |-- dbghelp.dll
+   |-- ShittyUxTheme.exe
+   |-- symsrv.dll
+   `-- symsrv.yes
+   ```
+   (or add `Windows 10 SDK\Debuggers\(arch)` to your PATH)
 3. Run as Administrator
 
 ## Uninstall
