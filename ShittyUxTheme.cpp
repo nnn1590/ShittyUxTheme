@@ -102,7 +102,7 @@ static int do_the_patch(const wchar_t* image)
     GetCurrentProcess(),
     (DWORD64)lib,
     nullptr,
-    [] __attribute__((stdcall)) (
+    [] __stdcall (
       _In_ PSYMBOL_INFOW sym_info,
       _In_ ULONG /*SymbolSize*/,
       _In_opt_ PVOID ctx
