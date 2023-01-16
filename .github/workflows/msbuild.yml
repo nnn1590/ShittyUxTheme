@@ -1,0 +1,82 @@
+name: MSBuild
+
+on: [push]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: ShittyUxTheme.sln
+  GIT_TAG_NAME: commit-${{github.sha}}
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        # Configuration type to build.
+        BUILD_CONFIGURATION: ["Debug", "Release"]
+        BUILD_PLATFORM: ["x86", "x64"]  # ARM64
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:OutDir="build/${{matrix.BUILD_PLATFORM}}/${{matrix.BUILD_CONFIGURATION}}" /p:Configuration=${{matrix.BUILD_CONFIGURATION}} /p:Platform="${{matrix.BUILD_PLATFORM}}" ${{env.SOLUTION_FILE_PATH}}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-msvc
+        path: build
+  release:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: repo
+
+    - name: Tagging commit
+      working-directory: repo
+      run: git tag "${{env.GIT_TAG_NAME}}" && git push origin "${{env.GIT_TAG_NAME}}"
+
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: build-msvc
+        path: build-msvc
+
+    - name: Compress buils-msvc with zip
+      working-directory: build-msvc
+      run: zip -r ../build-msvc.zip .
+
+    # Code taken from https://github.com/actions/upload-release-asset#example-workflow---upload-a-release-asset
+    # The MIT License (MIT) | Copyright (c) 2018 GitHub, Inc. and contributors
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        tag_name: ${{env.GIT_TAG_NAME}}
+        release_name: Release ${{github.sha}}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        upload_url: ${{steps.create_release.outputs.upload_url}}
+        asset_path: ./build-msvc.zip
+        asset_name: build-msvc.zip
+        asset_content_type: application/zip
