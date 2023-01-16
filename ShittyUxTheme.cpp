@@ -14,6 +14,12 @@
 #include <fstream>
 #include <cstdint>
 
+#ifdef _MSC_VER
+#define LAMBDA_STDCALL
+#else
+#define LAMBDA_STDCALL __stdcall
+#endif
+
 BOOL TakeOwnership(LPTSTR lpszOwnFile);
 
 std::vector<uint8_t> read_all(const wchar_t* path)
@@ -86,7 +92,7 @@ static int do_the_patch(const wchar_t* image)
     nullptr,
     0
   );
-  
+
   if (load_base == 0)
   {
     wprintf(L"SymLoadModuleExW failed: %lu\n", GetLastError());
@@ -106,7 +112,7 @@ static int do_the_patch(const wchar_t* image)
       _In_ PSYMBOL_INFOW sym_info,
       _In_ ULONG /*SymbolSize*/,
       _In_opt_ PVOID ctx
-      ) __stdcall ->BOOL
+      ) LAMBDA_STDCALL ->BOOL
     {
       if (0 == wcscmp(sym_info->Name, L"CThemeSignature::Verify"))
       {
